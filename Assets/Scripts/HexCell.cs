@@ -17,6 +17,7 @@ public class HexCell : MonoBehaviour
     public int row;
     public BlockType blockType;
     [SerializeField] Image blockImage;
+    [SerializeField] private GameObject selectEffect;
     
     public static HexCell selectedCell = null;
     
@@ -43,19 +44,23 @@ public class HexCell : MonoBehaviour
         if (selectedCell == null)
         {
             selectedCell = this;
-            // 선택 효과(테두리 등) 주기
+            SetSelected(true);
         }
         else if (selectedCell != this)
         {
-            SwapBlock(selectedCell, this);
+            // 인접한 셀만 스왑 허용!
+            if (selectedCell.IsAdjacent(this))
+            {
+                SwapBlock(selectedCell, this);
+            }
+            selectedCell.SetSelected(false);
+            SetSelected(false);
             selectedCell = null;
-            // 선택 효과 제거
         }
         else
         {
-            // 같은 셀 두 번 클릭 시 선택 취소
+            SetSelected(false);
             selectedCell = null;
-            // 선택 효과 제거
         }
     }
     
@@ -65,5 +70,22 @@ public class HexCell : MonoBehaviour
         a.setBlockType(b.blockType);
         b.setBlockType(tempType);
     }
+    
+    public void SetSelected(bool isSelected)
+    {
+        if(selectEffect != null)
+            selectEffect.SetActive(isSelected);
+    }
+    
+    public bool IsAdjacent(HexCell other)
+    {
+        Vector2 myPos = ((RectTransform)this.transform).position;
+        Vector2 otherPos = ((RectTransform)other.transform).position;
+        float dist = Vector2.Distance(myPos, otherPos);
+        
+        return dist <= 140f; 
+    }
+
+
     
 }

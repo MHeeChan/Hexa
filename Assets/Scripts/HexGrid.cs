@@ -10,6 +10,10 @@ public class HexGrid : MonoBehaviour
     public float yStep = 140f;
     public List<Sprite> blockSprites;
 
+    public int totalCount = 0;
+    
+    public bool canSwap = false;
+
     private Dictionary<BlockType, Sprite> blockSpriteDict = new Dictionary<BlockType, Sprite>();
     
     public List<List<HexCell>> hexGrid = new List<List<HexCell>>();
@@ -24,6 +28,7 @@ public class HexGrid : MonoBehaviour
         blockSpriteDict.Add(BlockType.Green, blockSprites[3]);
         blockSpriteDict.Add(BlockType.Purple, blockSprites[4]);
         blockSpriteDict.Add(BlockType.Spinner, blockSprites[5]);
+        blockSpriteDict.Add(BlockType.None, blockSprites[6]);
         
         if (Instance == null)
         {
@@ -38,6 +43,12 @@ public class HexGrid : MonoBehaviour
     void Start()
     {
         SpawnGrid();
+    }
+
+    public void plusCount()
+    {
+        totalCount++;
+        Debug.LogError(totalCount);
     }
     
     public Sprite GetBlockImage(BlockType type)
@@ -84,4 +95,179 @@ public class HexGrid : MonoBehaviour
             hexGrid.Add(columnList);
         }
     }
+    
+    // public List<HexCell> FindMatch3(HexCell cell)
+    // {
+    //     List<HexCell> totalMatch = new List<HexCell>();
+    //     BlockType type = cell.blockType;
+    //     if (type == BlockType.None || type == BlockType.Spinner)
+    //         return totalMatch;
+    //
+    //     // 3개 연속 탐색 (6방향 각각)
+    //     int[][] directions = new int[][]
+    //     {
+    //         new int[]{0,1}, new int[]{0,-1}, new int[]{1,0}, new int[]{-1,0}
+    //         //new int[]{1,1}, new int[]{-1,1},  new int[]{1,-1}, new int[]{-1,-1}
+    //     };
+    //     // 현재 자기가 속한 열의 원소 갯수를 기준으로 {1,1}, {1,-1}, {-1,1}, {-1,-1} 중에 뭘 넣을지 판단해야함
+    //
+    //     for (int d = 0; d < directions.Length; d++)
+    //     {
+    //         List<HexCell> line = new List<HexCell>();
+    //         line.Add(cell);
+    //         
+    //         for (int sign = -1; sign <= 1; sign += 2) // forward/backward
+    //         {
+    //             int curCol = cell.col;
+    //             int curGlobalY = cell.row + HexGrid.Instance.colRowStartY[cell.col];
+    //
+    //             while (true)
+    //             {
+    //                 int nCol = curCol + directions[d][0] * sign;
+    //                 int nGlobalY = curGlobalY + directions[d][1] * sign;
+    //
+    //                 if (nCol < 0 || nCol >= HexGrid.Instance.colCellCounts.Length) break;
+    //                 int nRow = nGlobalY - HexGrid.Instance.colRowStartY[nCol];
+    //                 if (nRow < 0 || nRow >= HexGrid.Instance.colCellCounts[nCol]) break;
+    //
+    //                 HexCell next = HexGrid.Instance.hexGrid[nCol][nRow];
+    //                 if (next.blockType == type)
+    //                 {
+    //                     line.Add(next);
+    //                     curCol = nCol;
+    //                     curGlobalY = nGlobalY;
+    //                 }
+    //                 else break;
+    //             }
+    //         }
+    //         if (line.Count >= 3)
+    //             totalMatch = totalMatch.Union(line).ToList();
+    //     }
+    //     return totalMatch;
+    // }
+    //
+    // public void DestroyMatched(List<HexCell> match)
+    // {
+    //     Debug.LogError("DestroyMatched");
+    //     // foreach (var cell in match)
+    //     //     cell.SetBlockType(BlockType.None, null); // 이미지 없애기 등
+    // }
+
+    #region 블록 낙하 로직
+    
+    public void DropBlocksInColumn(int col)
+    {
+        var colList = hexGrid[col];
+        bool changed;
+        do
+        {
+            changed = false;
+            for (int row = 0; row < colList.Count - 1; row++)
+            {
+                // 아래쪽이 None이고 위에 블록이 있으면 내려주기
+                if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
+                {
+                    Debug.LogError(row + " : " + col);
+                    colList[row].setBlockType(colList[row + 1].blockType);
+                    colList[row + 1].setBlockType(BlockType.None);
+                    changed = true;
+                }
+            }
+            // 맨 위칸이 None이면 랜덤 블록 생성
+            if (colList[colList.Count - 1].blockType == BlockType.None)
+            {
+                colList[colList.Count - 1].setBlockRandomType();
+                changed = true;
+            }
+        } while (changed);
+    }
+
+    
+    public void DropAllColumns()
+    {
+        Debug.LogError("DropAllColumns");
+        for (int col = 0; col < hexGrid.Count; col++)
+        {
+            DropBlocksInColumn(col);
+        }
+    }
+    
+    // public void DropUntilFull()
+    // {
+    //     Debug.LogError("DropUntilFull");
+    //     bool changed;
+    //     do
+    //     {
+    //         changed = false;
+    //         for (int col = 0; col < hexGrid.Count; col++)
+    //         {
+    //             var colList = hexGrid[col];
+    //             for (int row = 0; row < colList.Count - 1; row++)
+    //             {
+    //                 if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
+    //                 {
+    //                     colList[row].setBlockType(colList[row + 1].blockType);
+    //                     colList[row + 1].setBlockType(BlockType.None);
+    //                     changed = true;
+    //                 }
+    //             }
+    //             // 맨 위칸이 None이면 새 블록 생성
+    //             if (colList[colList.Count - 1].blockType == BlockType.None)
+    //             {
+    //                 BlockType randomType = (BlockType)Random.Range(1, 6);
+    //                 colList[colList.Count - 1].setBlockRandomType();
+    //                 changed = true;
+    //             }
+    //         }
+    //     } while (changed);
+    // }
+    
+    #endregion
+
+    #region 블록 파괴 로직
+    
+    public bool RemoveVerticalMatches()
+    {
+        canSwap = false;
+        for (int col = 0; col < hexGrid.Count; col++)
+        {
+            var colList = hexGrid[col];
+            int row = 0;
+            while (row < colList.Count)
+            {
+                BlockType type = colList[row].blockType;
+                if (type == BlockType.None || type == BlockType.Spinner)
+                {
+                    row++;
+                    continue;
+                }
+
+                // 연속 구간 찾기
+                int matchCount = 1;
+                int next = row + 1;
+                while (next < colList.Count && colList[next].blockType == type)
+                {
+                    matchCount++;
+                    next++;
+                }
+
+                if (matchCount >= 3)
+                {
+                    Debug.LogError("붐");
+                    canSwap = true;
+                    // 3개 이상 연속 시 제거
+                    for (int i = row; i < row + matchCount; i++)
+                    {
+                        
+                        colList[i].setBlockType(BlockType.None);
+                    }
+                }
+                row = next; // 다음 구간으로
+            }
+        }
+        DropAllColumns();
+        return canSwap;
+    }
+    
+    #endregion
 }

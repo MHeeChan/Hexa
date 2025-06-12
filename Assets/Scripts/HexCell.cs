@@ -21,6 +21,7 @@ public class HexCell : MonoBehaviour
     
     public static HexCell selectedCell = null;
     
+    public bool tested = false;
     public void init(int c, int r, BlockType _blockType)
     {
         col = c;
@@ -32,6 +33,12 @@ public class HexCell : MonoBehaviour
     {
         blockType = _blockType;
         setImage(HexGrid.Instance.GetBlockImage(_blockType));
+    }
+    
+    public void setBlockRandomType()
+    {
+        BlockType randomType = (BlockType)Random.Range((int)BlockType.Blue, (int)BlockType.Purple + 1);
+        setBlockType(randomType);
     }
 
     public void setImage(Sprite _image)
@@ -51,7 +58,17 @@ public class HexCell : MonoBehaviour
             // 인접한 셀만 스왑 허용!
             if (selectedCell.IsAdjacent(this))
             {
+                HexGrid.Instance.plusCount();
                 SwapBlock(selectedCell, this);
+                HexGrid.Instance.DropAllColumns();
+                //HexGrid.Instance.DropUntilFull();
+                
+                if (!HexGrid.Instance.RemoveVerticalMatches())
+                {
+                    Debug.LogError("스왑실패");
+                    SwapBlock(selectedCell, this);
+                }
+
             }
             selectedCell.SetSelected(false);
             SetSelected(false);
@@ -86,6 +103,12 @@ public class HexCell : MonoBehaviour
         return dist <= 140f; 
     }
 
+    void Update()
+    {
+        if (tested) {
+            setBlockType(BlockType.None);
+        }
+    }
 
     
 }

@@ -15,6 +15,9 @@ public class testSpawner : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.T))
             testStart();
+        
+        if (Input.GetKeyUp(KeyCode.C))
+            testClear();
     }
 
     void testStart()
@@ -26,6 +29,18 @@ public class testSpawner : MonoBehaviour
             {
                 BlockType randomType = (BlockType)Random.Range((int)BlockType.Blue, (int)BlockType.Purple + 1);
                 j.setBlockType(randomType);
+            }
+        }
+    }
+    
+    void testClear()
+    {
+        Debug.Log("testStart");
+        foreach (var i in HexGrid.Instance.hexGrid )
+        {
+            foreach (var j in i)
+            {
+                j.setBlockType(BlockType.None);
             }
         }
     }

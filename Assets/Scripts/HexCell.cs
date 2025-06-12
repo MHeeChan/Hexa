@@ -17,7 +17,9 @@ public class HexCell : MonoBehaviour
     public int row;
     public BlockType blockType;
     [SerializeField] Image blockImage;
-
+    
+    public static HexCell selectedCell = null;
+    
     public void init(int c, int r, BlockType _blockType)
     {
         col = c;
@@ -25,9 +27,43 @@ public class HexCell : MonoBehaviour
         blockType = _blockType;
     }
 
-    public void setImage(Image _image)
+    public void setBlockType(BlockType _blockType)
     {
-        blockImage = _image;
+        blockType = _blockType;
+        setImage(HexGrid.Instance.GetBlockImage(_blockType));
     }
-    // 나중에 블록 오브젝트(이미지, 이펙트 등) 참조도 추가 가능
+
+    public void setImage(Sprite _image)
+    {
+        blockImage.sprite = _image;
+    }
+    
+    public void OnClickCell()
+    {
+        if (selectedCell == null)
+        {
+            selectedCell = this;
+            // 선택 효과(테두리 등) 주기
+        }
+        else if (selectedCell != this)
+        {
+            SwapBlock(selectedCell, this);
+            selectedCell = null;
+            // 선택 효과 제거
+        }
+        else
+        {
+            // 같은 셀 두 번 클릭 시 선택 취소
+            selectedCell = null;
+            // 선택 효과 제거
+        }
+    }
+    
+    public static void SwapBlock(HexCell a, HexCell b)
+    {
+        BlockType tempType = a.blockType;
+        a.setBlockType(b.blockType);
+        b.setBlockType(tempType);
+    }
+    
 }

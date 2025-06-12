@@ -137,6 +137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 275653781}
   - component: {fileID: 275653782}
+  - component: {fileID: 275653783}
   m_Layer: 5
   m_Name: BoardSpawner
   m_TagString: Untagged
@@ -186,6 +187,18 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5b21d9ce009e3ca409af0f3941f7f164, type: 3}
   - {fileID: 21300000, guid: 86426164cd7c0ca4c905435dedf4c4ae, type: 3}
   - {fileID: 21300000, guid: 1ebbee777d1c3204d9c72ed81be55693, type: 3}
+--- !u!114 &275653783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 275653780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbabbcfeff828d540bd45276a2249593, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

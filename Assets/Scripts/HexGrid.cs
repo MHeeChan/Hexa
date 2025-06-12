@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 public class HexGrid : MonoBehaviour
 {
+    public static HexGrid Instance { get; private set; }
     public GameObject cellPrefab;
     public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
     public float xStep = 108f;
@@ -22,13 +24,23 @@ public class HexGrid : MonoBehaviour
         blockSpriteDict.Add(BlockType.Green, blockSprites[3]);
         blockSpriteDict.Add(BlockType.Purple, blockSprites[4]);
         blockSpriteDict.Add(BlockType.Spinner, blockSprites[5]);
+        
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬 전환에도 살아남게
+        }
+        else
+        {
+            Destroy(gameObject); // 중복 GameManager 제거
+        }
     }
     void Start()
     {
         SpawnGrid();
     }
     
-    public Sprite GetBlockSprite(BlockType type)
+    public Sprite GetBlockImage(BlockType type)
     {
         return blockSpriteDict.ContainsKey(type) ? blockSpriteDict[type] : null;
     }

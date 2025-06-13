@@ -1,6 +1,8 @@
 using UnityEngine;
-using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
+
 public class HexGrid : MonoBehaviour
 {
     public static HexGrid Instance { get; private set; }
@@ -167,7 +169,7 @@ public class HexGrid : MonoBehaviour
                 // 아래쪽이 None이고 위에 블록이 있으면 내려주기
                 if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
                 {
-                    Debug.LogError(row + " : " + col);
+                    //Debug.LogError(row + " : " + col);
                     colList[row].setBlockType(colList[row + 1].blockType);
                     colList[row + 1].setBlockType(BlockType.None);
                     changed = true;
@@ -181,7 +183,7 @@ public class HexGrid : MonoBehaviour
             }
         } while (changed);
     }
-
+    
     
     public void DropAllColumns()
     {
@@ -191,6 +193,81 @@ public class HexGrid : MonoBehaviour
             DropBlocksInColumn(col);
         }
     }
+    
+    public void DropAllColumnsWithAnimation()
+    {
+        StartCoroutine(DropAllColumnsRoutine());
+    }
+
+    // HexGrid.cs
+    private IEnumerator DropAllColumnsRoutine()
+    {
+        float moveDuration = 0.2f;
+        bool anyBlockMoved;
+
+        do
+        {
+            anyBlockMoved = false;
+
+            for (int col = 0; col < hexGrid.Count; col++)
+            {
+                var colList = hexGrid[col];
+                int targetRow = 0; // 아래부터
+
+                while (targetRow < colList.Count)
+                {
+                    if (colList[targetRow].blockType == BlockType.None)
+                    {
+                        // 위에서 내려올 블록 탐색
+                        int sourceRow = targetRow + 1;
+                        while (sourceRow < colList.Count && colList[sourceRow].blockType == BlockType.None)
+                            sourceRow++;
+						Debug.LogError(sourceRow + " : " + targetRow);
+                        if (sourceRow < colList.Count)
+                        {
+                            // 한 번에 None 위치로 이동!
+                            yield return StartCoroutine(colList[sourceRow].MoveBlockTo(colList[targetRow], moveDuration));
+                            anyBlockMoved = true;
+                        }
+                        else
+                        {
+                            // 맨 위가 None인 경우 새 블록 생성 애니메이션
+                            //HexCell topCell = colList[colList.Count - 1];
+                            //if (targetRow == colList.Count - 1)
+                            //{
+                            //    BlockType randomType = (BlockType)Random.Range((int)BlockType.Blue, (int)BlockType.Purple + 1);
+                            //    GameObject temp = Instantiate(topCell.getImage().gameObject, topCell.getImage().transform.parent);
+                            //    temp.transform.position = topCell.getImage().transform.position + new Vector3(0, 200f, 0);
+                            //    temp.GetComponent<Image>().sprite = HexGrid.Instance.GetBlockImage(randomType);
+
+                            //    float elapsed = 0;
+                            //    Vector3 start = temp.transform.position;
+                            //    Vector3 end = topCell.getImage().transform.position;
+                            //    while (elapsed < moveDuration)
+                            //    {
+                            //        temp.transform.position = Vector3.Lerp(start, end, elapsed / moveDuration);
+                            //        elapsed += Time.deltaTime;
+                            //        yield return null;
+                            //    }
+                            //    temp.transform.position = end;
+                            //    Destroy(temp);
+
+                            //    topCell.setBlockType(randomType);
+                            //    anyBlockMoved = true;
+                            //}
+                            //break; // 맨 위까지 None이면 이 열 완료
+                        }
+                    }
+                    targetRow++;
+                }
+            }
+            yield return new WaitForSeconds(0.01f);
+
+        } while (anyBlockMoved);
+    }
+
+
+
     
     // public void DropUntilFull()
     // {
@@ -228,6 +305,7 @@ public class HexGrid : MonoBehaviour
     
     public bool RemoveVerticalMatches()
     {
+		//return false;
         canSwap = false;
         for (int col = 0; col < hexGrid.Count; col++)
         {
@@ -265,7 +343,8 @@ public class HexGrid : MonoBehaviour
                 row = next; // 다음 구간으로
             }
         }
-        DropAllColumns();
+        //DropAllColumns();
+        DropAllColumnsWithAnimation();
         return canSwap;
     }
     

@@ -228,6 +228,11 @@ public class HexCell : MonoBehaviour
             Debug.LogError("스왑실패, 원상복구");
             SwapBlock(a, b);
         }
+        else
+        {
+            GameManager.Instance.UpdateCount();
+            GameManager.Instance.UpdateScore();
+        }
     
         Destroy(tempA);
         Destroy(tempB);

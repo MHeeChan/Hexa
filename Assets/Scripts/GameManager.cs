@@ -1,9 +1,14 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
+    
+    public static int moveCount = 20;
+    [SerializeField] TextMeshProUGUI moveText;
+    [SerializeField] TextMeshProUGUI scoreText;
     private void Awake()
     {
         if (Instance == null)
@@ -20,6 +25,8 @@ public class GameManager : MonoBehaviour
     public void ReStart()
     {
         Debug.Log("testStart");
+        UpdateCount();
+        UpdateScore();
         foreach (var i in HexGrid.Instance.hexGrid )
         {
             foreach (var j in i)
@@ -30,5 +37,15 @@ public class GameManager : MonoBehaviour
         }
         // 추후 랜덤이 아니라 스테이지 초기로 수정 필요
     }
-    
+
+    public void UpdateScore()
+    {
+        scoreText.text = $"{HexGrid.totalScore}";
+    }
+
+    public void UpdateCount()
+    {
+        moveText.text = $"{moveCount - HexGrid.totalCount}";
+    }
+
 }

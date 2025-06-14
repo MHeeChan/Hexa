@@ -17,6 +17,8 @@ public class HexGrid : MonoBehaviour
 
     public static int totalCount = 0;
     
+    public static int totalScore = 0;
+    
     public bool canSwap = false;
 
     private Dictionary<BlockType, Sprite> blockSpriteDict = new Dictionary<BlockType, Sprite>();
@@ -52,7 +54,6 @@ public class HexGrid : MonoBehaviour
     public void plusCount()
     {
         totalCount++;
-        Debug.LogError(totalCount);
     }
     
     public Sprite GetBlockImage(BlockType type)
@@ -149,7 +150,7 @@ public class HexGrid : MonoBehaviour
     {
         bool found = false;
         HashSet<HexCell> toRemove = new HashSet<HexCell>();
-
+        int deleteCount = 0;
         for (int col = 0; col < hexGrid.Count; col++)
         {
             var colList = hexGrid[col];
@@ -173,8 +174,13 @@ public class HexGrid : MonoBehaviour
                     vert.Add(colList[down]);
                     down--;
                 }
+
                 if (vert.Count >= 3)
+                {
                     foreach (var c in vert) toRemove.Add(c);
+                    
+                    deleteCount += vert.Count;
+                }
 
                 // ---- 2. ↘ 방향 (오른쪽 아래/왼쪽 위) ----
                 List<HexCell> diag1 = new List<HexCell> { colList[row] };
@@ -212,8 +218,13 @@ public class HexGrid : MonoBehaviour
                     }
                     else break;
                 }
+
                 if (diag1.Count >= 3)
+                {
                     foreach (var c in diag1) toRemove.Add(c);
+                    
+                    deleteCount += diag1.Count;
+                }
 
                 // ---- 3. ↙ 방향 (왼쪽 아래/오른쪽 위) ----
                 List<HexCell> diag2 = new List<HexCell> { colList[row] };
@@ -251,10 +262,17 @@ public class HexGrid : MonoBehaviour
                     }
                     else break;
                 }
+
                 if (diag2.Count >= 3)
+                {
                     foreach (var c in diag2) toRemove.Add(c);
+                    
+                    deleteCount += diag2.Count;
+                }
             }
         }
+        
+        totalScore += deleteCount;
 
         foreach (var c in toRemove)
         {

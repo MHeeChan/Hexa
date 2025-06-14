@@ -15,7 +15,7 @@ public class HexGrid : MonoBehaviour
     
     public static int movingBlockCount = 0;
 
-    public int totalCount = 0;
+    public static int totalCount = 0;
     
     public bool canSwap = false;
 

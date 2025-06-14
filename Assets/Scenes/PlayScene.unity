@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 8489962251857741774, guid: 922e7512443bcfd4e949dc6827551453, type: 3}
-  colCellCounts: 03000000040000000500000006000000050000000400000003000000
+  colCellCounts: 06000000060000000600000006000000060000000600000006000000
   xStep: 108
   yStep: 140
   blockSprites:
@@ -188,6 +188,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 86426164cd7c0ca4c905435dedf4c4ae, type: 3}
   - {fileID: 21300000, guid: 1ebbee777d1c3204d9c72ed81be55693, type: 3}
   - {fileID: 21300000, guid: b4c3906e7f4b27f42ba29898524bfa7a, type: 3}
+  totalCount: 0
+  canSwap: 0
 --- !u!114 &275653783
 MonoBehaviour:
   m_ObjectHideFlags: 0

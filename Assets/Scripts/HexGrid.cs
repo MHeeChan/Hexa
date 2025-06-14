@@ -7,7 +7,8 @@ public class HexGrid : MonoBehaviour
 {
     public static HexGrid Instance { get; private set; }
     public GameObject cellPrefab;
-    public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
+    //public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
+    public int[] colCellCounts = {5, 6, 5, 6, 5, 6, 5};
     public float xStep = 108f;
     public float yStep = 140f;
     public List<Sprite> blockSprites;
@@ -30,7 +31,6 @@ public class HexGrid : MonoBehaviour
         blockSpriteDict.Add(BlockType.Green, blockSprites[3]);
         blockSpriteDict.Add(BlockType.Purple, blockSprites[4]);
         blockSpriteDict.Add(BlockType.Spinner, blockSprites[5]);
-        blockSpriteDict.Add(BlockType.None, blockSprites[6]);
         
         if (Instance == null)
         {
@@ -97,69 +97,15 @@ public class HexGrid : MonoBehaviour
             hexGrid.Add(columnList);
         }
     }
-    
-    // public List<HexCell> FindMatch3(HexCell cell)
-    // {
-    //     List<HexCell> totalMatch = new List<HexCell>();
-    //     BlockType type = cell.blockType;
-    //     if (type == BlockType.None || type == BlockType.Spinner)
-    //         return totalMatch;
-    //
-    //     // 3개 연속 탐색 (6방향 각각)
-    //     int[][] directions = new int[][]
-    //     {
-    //         new int[]{0,1}, new int[]{0,-1}, new int[]{1,0}, new int[]{-1,0}
-    //         //new int[]{1,1}, new int[]{-1,1},  new int[]{1,-1}, new int[]{-1,-1}
-    //     };
-    //     // 현재 자기가 속한 열의 원소 갯수를 기준으로 {1,1}, {1,-1}, {-1,1}, {-1,-1} 중에 뭘 넣을지 판단해야함
-    //
-    //     for (int d = 0; d < directions.Length; d++)
-    //     {
-    //         List<HexCell> line = new List<HexCell>();
-    //         line.Add(cell);
-    //         
-    //         for (int sign = -1; sign <= 1; sign += 2) // forward/backward
-    //         {
-    //             int curCol = cell.col;
-    //             int curGlobalY = cell.row + HexGrid.Instance.colRowStartY[cell.col];
-    //
-    //             while (true)
-    //             {
-    //                 int nCol = curCol + directions[d][0] * sign;
-    //                 int nGlobalY = curGlobalY + directions[d][1] * sign;
-    //
-    //                 if (nCol < 0 || nCol >= HexGrid.Instance.colCellCounts.Length) break;
-    //                 int nRow = nGlobalY - HexGrid.Instance.colRowStartY[nCol];
-    //                 if (nRow < 0 || nRow >= HexGrid.Instance.colCellCounts[nCol]) break;
-    //
-    //                 HexCell next = HexGrid.Instance.hexGrid[nCol][nRow];
-    //                 if (next.blockType == type)
-    //                 {
-    //                     line.Add(next);
-    //                     curCol = nCol;
-    //                     curGlobalY = nGlobalY;
-    //                 }
-    //                 else break;
-    //             }
-    //         }
-    //         if (line.Count >= 3)
-    //             totalMatch = totalMatch.Union(line).ToList();
-    //     }
-    //     return totalMatch;
-    // }
-    //
-    // public void DestroyMatched(List<HexCell> match)
-    // {
-    //     Debug.LogError("DestroyMatched");
-    //     // foreach (var cell in match)
-    //     //     cell.SetBlockType(BlockType.None, null); // 이미지 없애기 등
-    // }
 
     #region 블록 낙하 로직
     
-    public void DropBlocksInColumn(int col)
+    // 순차적으로. 대각선 낙하 연출할때 쓸만할지도
+    // 추후 한번에 옮겨지도록 처리 필요
+    private IEnumerator DropBlocksInColumn(int col)
     {
         var colList = hexGrid[col];
+        float moveDuration = 0.2f;
         bool changed;
         do
         {
@@ -170,8 +116,12 @@ public class HexGrid : MonoBehaviour
                 if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
                 {
                     //Debug.LogError(row + " : " + col);
+                    // colList[row].setBlockType(colList[row + 1].blockType);
+                    // colList[row + 1].setBlockType(BlockType.None);
+                    yield return StartCoroutine(colList[row + 1].MoveBlockTo(colList[row], moveDuration));
                     colList[row].setBlockType(colList[row + 1].blockType);
                     colList[row + 1].setBlockType(BlockType.None);
+
                     changed = true;
                 }
             }
@@ -190,163 +140,135 @@ public class HexGrid : MonoBehaviour
         Debug.LogError("DropAllColumns");
         for (int col = 0; col < hexGrid.Count; col++)
         {
-            DropBlocksInColumn(col);
+            StartCoroutine(DropBlocksInColumn(col));
         }
     }
-    
-    public void DropAllColumnsWithAnimation()
-    {
-        StartCoroutine(DropAllColumnsRoutine());
-    }
-
-    // HexGrid.cs
-    private IEnumerator DropAllColumnsRoutine()
-    {
-        float moveDuration = 0.2f;
-        bool anyBlockMoved;
-
-        do
-        {
-            anyBlockMoved = false;
-
-            for (int col = 0; col < hexGrid.Count; col++)
-            {
-                var colList = hexGrid[col];
-                int targetRow = 0; // 아래부터
-
-                while (targetRow < colList.Count)
-                {
-                    if (colList[targetRow].blockType == BlockType.None)
-                    {
-                        // 위에서 내려올 블록 탐색
-                        int sourceRow = targetRow + 1;
-                        while (sourceRow < colList.Count && colList[sourceRow].blockType == BlockType.None)
-                            sourceRow++;
-						Debug.LogError(sourceRow + " : " + targetRow);
-                        if (sourceRow < colList.Count)
-                        {
-                            // 한 번에 None 위치로 이동!
-                            yield return StartCoroutine(colList[sourceRow].MoveBlockTo(colList[targetRow], moveDuration));
-                            anyBlockMoved = true;
-                        }
-                        else
-                        {
-                            // 맨 위가 None인 경우 새 블록 생성 애니메이션
-                            //HexCell topCell = colList[colList.Count - 1];
-                            //if (targetRow == colList.Count - 1)
-                            //{
-                            //    BlockType randomType = (BlockType)Random.Range((int)BlockType.Blue, (int)BlockType.Purple + 1);
-                            //    GameObject temp = Instantiate(topCell.getImage().gameObject, topCell.getImage().transform.parent);
-                            //    temp.transform.position = topCell.getImage().transform.position + new Vector3(0, 200f, 0);
-                            //    temp.GetComponent<Image>().sprite = HexGrid.Instance.GetBlockImage(randomType);
-
-                            //    float elapsed = 0;
-                            //    Vector3 start = temp.transform.position;
-                            //    Vector3 end = topCell.getImage().transform.position;
-                            //    while (elapsed < moveDuration)
-                            //    {
-                            //        temp.transform.position = Vector3.Lerp(start, end, elapsed / moveDuration);
-                            //        elapsed += Time.deltaTime;
-                            //        yield return null;
-                            //    }
-                            //    temp.transform.position = end;
-                            //    Destroy(temp);
-
-                            //    topCell.setBlockType(randomType);
-                            //    anyBlockMoved = true;
-                            //}
-                            //break; // 맨 위까지 None이면 이 열 완료
-                        }
-                    }
-                    targetRow++;
-                }
-            }
-            yield return new WaitForSeconds(0.01f);
-
-        } while (anyBlockMoved);
-    }
-
-
-
-    
-    // public void DropUntilFull()
-    // {
-    //     Debug.LogError("DropUntilFull");
-    //     bool changed;
-    //     do
-    //     {
-    //         changed = false;
-    //         for (int col = 0; col < hexGrid.Count; col++)
-    //         {
-    //             var colList = hexGrid[col];
-    //             for (int row = 0; row < colList.Count - 1; row++)
-    //             {
-    //                 if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
-    //                 {
-    //                     colList[row].setBlockType(colList[row + 1].blockType);
-    //                     colList[row + 1].setBlockType(BlockType.None);
-    //                     changed = true;
-    //                 }
-    //             }
-    //             // 맨 위칸이 None이면 새 블록 생성
-    //             if (colList[colList.Count - 1].blockType == BlockType.None)
-    //             {
-    //                 BlockType randomType = (BlockType)Random.Range(1, 6);
-    //                 colList[colList.Count - 1].setBlockRandomType();
-    //                 changed = true;
-    //             }
-    //         }
-    //     } while (changed);
-    // }
     
     #endregion
 
     #region 블록 파괴 로직
-    
-    public bool RemoveVerticalMatches()
+    public bool RemoveLineMatches()
     {
-		//return false;
-        canSwap = false;
+        bool found = false;
+        HashSet<HexCell> toRemove = new HashSet<HexCell>();
+
         for (int col = 0; col < hexGrid.Count; col++)
         {
             var colList = hexGrid[col];
-            int row = 0;
-            while (row < colList.Count)
+            for (int row = 0; row < colList.Count; row++)
             {
                 BlockType type = colList[row].blockType;
                 if (type == BlockType.None || type == BlockType.Spinner)
-                {
-                    row++;
                     continue;
-                }
 
-                // 연속 구간 찾기
-                int matchCount = 1;
-                int next = row + 1;
-                while (next < colList.Count && colList[next].blockType == type)
+                // ---- 1. 세로(위아래) ----
+                List<HexCell> vert = new List<HexCell> { colList[row] };
+                int up = row + 1;
+                while (up < colList.Count && colList[up].blockType == type)
                 {
-                    matchCount++;
-                    next++;
+                    vert.Add(colList[up]);
+                    up++;
                 }
-
-                if (matchCount >= 3)
+                int down = row - 1;
+                while (down >= 0 && colList[down].blockType == type)
                 {
-                    Debug.LogError("붐");
-                    canSwap = true;
-                    // 3개 이상 연속 시 제거
-                    for (int i = row; i < row + matchCount; i++)
+                    vert.Add(colList[down]);
+                    down--;
+                }
+                if (vert.Count >= 3)
+                    foreach (var c in vert) toRemove.Add(c);
+
+                // ---- 2. ↘ 방향 (오른쪽 아래/왼쪽 위) ----
+                List<HexCell> diag1 = new List<HexCell> { colList[row] };
+                // 오른쪽 아래
+                int dCol = col;
+                int dRow = row;
+                while (true)
+                {
+                    int nextCol = dCol + 1;
+                    int nextRow = (dCol % 2 == 1) ? dRow : dRow + 1;
+                    if (nextCol >= hexGrid.Count || nextRow < 0 || nextRow >= hexGrid[nextCol].Count)
+                        break;
+                    if (hexGrid[nextCol][nextRow].blockType == type)
                     {
-                        
-                        colList[i].setBlockType(BlockType.None);
+                        diag1.Add(hexGrid[nextCol][nextRow]);
+                        dCol = nextCol;
+                        dRow = nextRow;
                     }
+                    else break;
                 }
-                row = next; // 다음 구간으로
+                // 왼쪽 위
+                dCol = col;
+                dRow = row;
+                while (true)
+                {
+                    int nextCol = dCol - 1;
+                    int nextRow = (dCol % 2 == 1) ? dRow - 1 : dRow;
+                    if (nextCol < 0 || nextRow < 0 || nextRow >= hexGrid[nextCol].Count)
+                        break;
+                    if (hexGrid[nextCol][nextRow].blockType == type)
+                    {
+                        diag1.Add(hexGrid[nextCol][nextRow]);
+                        dCol = nextCol;
+                        dRow = nextRow;
+                    }
+                    else break;
+                }
+                if (diag1.Count >= 3)
+                    foreach (var c in diag1) toRemove.Add(c);
+
+                // ---- 3. ↙ 방향 (왼쪽 아래/오른쪽 위) ----
+                List<HexCell> diag2 = new List<HexCell> { colList[row] };
+                // 왼쪽 아래
+                dCol = col;
+                dRow = row;
+                while (true)
+                {
+                    int nextCol = dCol - 1;
+                    int nextRow = (dCol % 2 == 1) ? dRow : dRow + 1;
+                    if (nextCol < 0 || nextRow < 0 || nextRow >= hexGrid[nextCol].Count)
+                        break;
+                    if (hexGrid[nextCol][nextRow].blockType == type)
+                    {
+                        diag2.Add(hexGrid[nextCol][nextRow]);
+                        dCol = nextCol;
+                        dRow = nextRow;
+                    }
+                    else break;
+                }
+                // 오른쪽 위
+                dCol = col;
+                dRow = row;
+                while (true)
+                {
+                    int nextCol = dCol + 1;
+                    int nextRow = (dCol % 2 == 1) ? dRow - 1 : dRow;
+                    if (nextCol >= hexGrid.Count || nextRow < 0 || nextRow >= hexGrid[nextCol].Count)
+                        break;
+                    if (hexGrid[nextCol][nextRow].blockType == type)
+                    {
+                        diag2.Add(hexGrid[nextCol][nextRow]);
+                        dCol = nextCol;
+                        dRow = nextRow;
+                    }
+                    else break;
+                }
+                if (diag2.Count >= 3)
+                    foreach (var c in diag2) toRemove.Add(c);
             }
         }
-        //DropAllColumns();
-        DropAllColumnsWithAnimation();
-        return canSwap;
+
+        foreach (var c in toRemove)
+        {
+            c.setBlockType(BlockType.None);
+            found = true;
+        }
+        if (found) DropAllColumns();
+        return found;
     }
+
+
+
     
     #endregion
 }

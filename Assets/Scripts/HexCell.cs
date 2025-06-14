@@ -10,7 +10,8 @@ public enum BlockType
     Red,
     Green,
     Purple,
-    Spinner // 장애물
+    Spinner, // 장애물
+    Disable
 }
 
 public class HexCell : MonoBehaviour
@@ -34,7 +35,15 @@ public class HexCell : MonoBehaviour
     public void setBlockType(BlockType _blockType)
     {
         blockType = _blockType;
-        setImage(HexGrid.Instance.GetBlockImage(_blockType));
+        if (blockType == BlockType.None)
+        {
+            blockImage.enabled = false; // 완전 숨기기
+        }
+        else
+        {
+            blockImage.enabled = true; // 다시 켜기
+            blockImage.sprite = HexGrid.Instance.GetBlockImage(_blockType);
+        }
     }
     
     public void setBlockRandomType()
@@ -124,29 +133,52 @@ public class HexCell : MonoBehaviour
     }
     
     
+    // public IEnumerator MoveBlockTo(HexCell toCell, float duration = 0.25f)
+    // {
+    //     var image = blockImage.transform;
+    //     Vector3 startPos = image.position;
+    //     Vector3 endPos = toCell.blockImage.transform.position;
+    //     Debug.LogError(startPos + " ; " + endPos);
+    //     Sprite tempSprite = blockImage.sprite;
+    //     BlockType tempType = blockType;
+    //
+    //     float elapsed = 0;
+    //     while (elapsed < duration)
+    //     {
+    //         //image.position = Vector3.Lerp(startPos, endPos, elapsed / duration);
+    //         elapsed += Time.deltaTime;
+    //         yield return null;
+    //     }
+    //     image.position = endPos;
+    //
+    //     // 도착 후에만 교체
+    //     toCell.setBlockType(tempType);
+    //     toCell.setImage(tempSprite);
+    //     this.setBlockType(BlockType.None);
+    // }
+    
     public IEnumerator MoveBlockTo(HexCell toCell, float duration = 0.25f)
     {
-        var image = blockImage.transform;
-        Vector3 startPos = image.position;
+        GameObject tempImg = Instantiate(blockImage.gameObject, blockImage.transform.parent);
+        RectTransform tempRect = tempImg.GetComponent<RectTransform>();
+        Vector3 startPos = blockImage.transform.position;
         Vector3 endPos = toCell.blockImage.transform.position;
-       Debug.LogError(startPos + " ; " + endPos);
-        Sprite tempSprite = blockImage.sprite;
-        BlockType tempType = blockType;
+        tempRect.position = startPos;
+
+        BlockType tempBlockType = this.blockType;
 
         float elapsed = 0;
         while (elapsed < duration)
         {
-            //image.position = Vector3.Lerp(startPos, endPos, elapsed / duration);
+            tempRect.position = Vector3.Lerp(startPos, endPos, elapsed / duration);
             elapsed += Time.deltaTime;
             yield return null;
         }
-        image.position = endPos;
-    
-        // 도착 후에만 교체
-        toCell.setBlockType(tempType);
-        toCell.setImage(tempSprite);
-        this.setBlockType(BlockType.None);
-    }   
+        tempRect.position = endPos;
+
+
+        Destroy(tempImg);
+    }
 
    public static IEnumerator SwapWithAnim(HexCell a, HexCell b, float duration = 0.25f)
     {
@@ -184,8 +216,9 @@ public class HexCell : MonoBehaviour
         tempBRect.position = aStartPos;
     
         SwapBlock(a, b);
-
-		if (!HexGrid.Instance.RemoveVerticalMatches())
+        
+		//if (!HexGrid.Instance.RemoveVerticalMatches())
+        if (!HexGrid.Instance.RemoveLineMatches())
         {
             Debug.LogError("스왑실패");
 			SwapBlock(a, b);

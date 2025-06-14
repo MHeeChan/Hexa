@@ -12,6 +12,8 @@ public class HexGrid : MonoBehaviour
     public float xStep = 108f;
     public float yStep = 140f;
     public List<Sprite> blockSprites;
+    
+    public static int movingBlockCount = 0;
 
     public int totalCount = 0;
     
@@ -112,12 +114,9 @@ public class HexGrid : MonoBehaviour
             changed = false;
             for (int row = 0; row < colList.Count - 1; row++)
             {
-                // 아래쪽이 None이고 위에 블록이 있으면 내려주기
                 if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
                 {
-                    //Debug.LogError(row + " : " + col);
-                    // colList[row].setBlockType(colList[row + 1].blockType);
-                    // colList[row + 1].setBlockType(BlockType.None);
+
                     yield return StartCoroutine(colList[row + 1].MoveBlockTo(colList[row], moveDuration));
                     colList[row].setBlockType(colList[row + 1].blockType);
                     colList[row + 1].setBlockType(BlockType.None);
@@ -125,7 +124,6 @@ public class HexGrid : MonoBehaviour
                     changed = true;
                 }
             }
-            // 맨 위칸이 None이면 랜덤 블록 생성
             if (colList[colList.Count - 1].blockType == BlockType.None)
             {
                 colList[colList.Count - 1].setBlockRandomType();
@@ -267,6 +265,45 @@ public class HexGrid : MonoBehaviour
         return found;
     }
 
+    public IEnumerator RemoveLineMatchesUntilDone(System.Action<bool> onComplete = null)
+    {
+        yield return StartCoroutine(RemoveLineMatchesRoutine(onComplete));
+    }
+    public IEnumerator RemoveLineMatchesRoutine(System.Action<bool> onComplete = null)
+    {
+        bool anyMatched = false;
+        bool matched;
+        do
+        {
+            matched = RemoveLineMatches();
+            if (matched) anyMatched = true;
+            // if (matched)
+            //     yield return new WaitForSeconds(2f);
+            if (matched)
+                yield return new WaitUntil(() => HexGrid.movingBlockCount == 0);
+        } while (matched);
+
+        onComplete?.Invoke(anyMatched);
+    }
+
+
+
+    // private IEnumerator RemoveLineMatchesRoutine()
+    // {
+    //     // 최초 1회
+    //     yield return null;
+    //     bool matched;
+    //     do
+    //     {
+    //         // 매칭 & 파괴
+    //         matched = RemoveLineMatches();
+    //         // 드랍 애니메이션이 있다면 이 부분에서 "모든 이동이 끝났는지" 체크 필요
+    //         // 예: yield return new WaitUntil(() => 모든 블록 이동 완료);
+    //         // 또는 충분한 시간 기다리기(간단히 연출용)
+    //         if (matched)
+    //             yield return new WaitForSeconds(0.3f); // 드랍 연출 기다림
+    //     } while (matched);
+    // }
 
 
     

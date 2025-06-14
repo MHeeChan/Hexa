@@ -159,6 +159,7 @@ public class HexCell : MonoBehaviour
     
     public IEnumerator MoveBlockTo(HexCell toCell, float duration = 0.25f)
     {
+        HexGrid.movingBlockCount++;
         GameObject tempImg = Instantiate(blockImage.gameObject, blockImage.transform.parent);
         RectTransform tempRect = tempImg.GetComponent<RectTransform>();
         Vector3 startPos = blockImage.transform.position;
@@ -178,6 +179,7 @@ public class HexCell : MonoBehaviour
 
 
         Destroy(tempImg);
+        HexGrid.movingBlockCount--;
     }
 
    public static IEnumerator SwapWithAnim(HexCell a, HexCell b, float duration = 0.25f)
@@ -186,8 +188,8 @@ public class HexCell : MonoBehaviour
         GameObject tempA = Instantiate(a.blockImage.gameObject, a.blockImage.transform.parent);
         GameObject tempB = Instantiate(b.blockImage.gameObject, b.blockImage.transform.parent);
 
-       BlockType typeA = a.blockType;
-      BlockType typeB = b.blockType;
+        BlockType typeA = a.blockType;
+        BlockType typeB = b.blockType;
 
         RectTransform tempARect = tempA.GetComponent<RectTransform>();
         RectTransform tempBRect = tempB.GetComponent<RectTransform>();
@@ -216,12 +218,15 @@ public class HexCell : MonoBehaviour
         tempBRect.position = aStartPos;
     
         SwapBlock(a, b);
-        
-		//if (!HexGrid.Instance.RemoveVerticalMatches())
-        if (!HexGrid.Instance.RemoveLineMatches())
+        bool isMatched = false;
+        yield return HexGrid.Instance.StartCoroutine(
+            HexGrid.Instance.RemoveLineMatchesUntilDone((matched) => isMatched = matched)
+        );
+
+        if (!isMatched)
         {
-            Debug.LogError("스왑실패");
-			SwapBlock(a, b);
+            Debug.LogError("스왑실패, 원상복구");
+            SwapBlock(a, b);
         }
     
         Destroy(tempA);

@@ -301,4 +301,7 @@ MonoBehaviour:
   row: 0
   blockType: 0
   blockImage: {fileID: 7364650701822085298}
+  spinnerImage: {fileID: 21300000, guid: 4bdc81d13dbb2364aa103fa5af6ddbf0, type: 3}
   selectEffect: {fileID: 6189904937040075014}
+  disableCount: 0
+  tested: 0

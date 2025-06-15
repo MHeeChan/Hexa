@@ -538,8 +538,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ec15ab5dbd282ad428d17f6f101542d6, type: 3}
   - {fileID: 21300000, guid: 5b21d9ce009e3ca409af0f3941f7f164, type: 3}
   - {fileID: 21300000, guid: 86426164cd7c0ca4c905435dedf4c4ae, type: 3}
-  - {fileID: 21300000, guid: 1ebbee777d1c3204d9c72ed81be55693, type: 3}
-  - {fileID: 21300000, guid: b4c3906e7f4b27f42ba29898524bfa7a, type: 3}
+  - {fileID: 21300000, guid: cd758aa7764cf82438a7eaf794ff01a1, type: 3}
   canSwap: 0
 --- !u!114 &275653783
 MonoBehaviour:
@@ -964,7 +963,7 @@ GameObject:
   - component: {fileID: 846209613}
   - component: {fileID: 846209612}
   m_Layer: 0
-  m_Name: Count
+  m_Name: MoveCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1190,7 +1189,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3cb52b10542d274493bb9a94fd362e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreText: {fileID: 846209612}
+  moveText: {fileID: 846209612}
+  scoreText: {fileID: 1437978730}
 --- !u!4 &1022219749
 Transform:
   m_ObjectHideFlags: 0
@@ -1223,7 +1223,7 @@ GameObject:
   - component: {fileID: 1437978731}
   - component: {fileID: 1437978730}
   m_Layer: 0
-  m_Name: Count
+  m_Name: ScoreCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

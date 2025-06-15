@@ -18,6 +18,11 @@ public class testSpawner : MonoBehaviour
         
         if (Input.GetKeyUp(KeyCode.C))
             testClear();
+
+        if (Input.GetKeyUp(KeyCode.K))
+        {
+            HexGrid.Instance.hexGrid[3][0].setBlockType(BlockType.Spinner);
+        }
     }
 
     void testStart()

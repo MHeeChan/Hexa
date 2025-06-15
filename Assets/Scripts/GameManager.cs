@@ -27,13 +27,23 @@ public class GameManager : MonoBehaviour
         Debug.Log("testStart");
         UpdateCount();
         UpdateScore();
+
+        int idxI = 0;
         foreach (var i in HexGrid.Instance.hexGrid )
         {
+            int idxJ = 0;
             foreach (var j in i)
             {
-                BlockType randomType = (BlockType)Random.Range((int)BlockType.Blue, (int)BlockType.Purple + 1);
-                j.setBlockType(randomType);
+                if(idxJ == 0 && (idxI == 0 || idxI == 1 || idxI == 5 || idxI == 6)){
+                    j.setBlockType(BlockType.Disable);
+                }
+                else{
+                    BlockType randomType = (BlockType)Random.Range((int)BlockType.Blue, (int)BlockType.Purple + 1);
+                    j.setBlockType(randomType);
+                }
+                idxJ++;
             }
+            idxI++;
         }
         // 추후 랜덤이 아니라 스테이지 초기로 수정 필요
     }

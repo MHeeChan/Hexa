@@ -20,9 +20,11 @@ public class HexCell : MonoBehaviour
     public int row;
     public BlockType blockType;
     [SerializeField] Image blockImage;
+    [SerializeField] Sprite spinnerImage;
     [SerializeField] private GameObject selectEffect;
     
     public static HexCell selectedCell = null;
+    public int disableCount = 0;
     
     public bool tested = false;
     public void init(int c, int r, BlockType _blockType)
@@ -38,6 +40,9 @@ public class HexCell : MonoBehaviour
         if (blockType == BlockType.None)
         {
             blockImage.enabled = false; // 완전 숨기기
+        }else if (blockType == BlockType.Disable)
+        {
+            this.gameObject.SetActive(false);
         }
         else
         {
@@ -64,6 +69,9 @@ public class HexCell : MonoBehaviour
     
     public void OnClickCell()
     {
+        if (blockType == BlockType.Disable)
+            return; 
+        
         if (selectedCell == null)
         {
             selectedCell = this;
@@ -238,9 +246,27 @@ public class HexCell : MonoBehaviour
         Destroy(tempB);
     }
    
-   public void SwapWithAnim(HexCell cellA, HexCell cellB)
-   {
-       StartCoroutine(HexCell.SwapWithAnim(cellA, cellB));
-   }
+    public void SwapWithAnim(HexCell cellA, HexCell cellB)
+    {
+        StartCoroutine(HexCell.SwapWithAnim(cellA, cellB));
+    }
 
+#region 장애물 블록 구현
+    public void HitSpinner()
+    {
+        if (blockType != BlockType.Spinner) return;
+        Debug.LogError("HitSpinner");
+        disableCount++;
+        if (disableCount == 1)
+        {
+            // 포장 벗겨짐
+            setImage(spinnerImage);
+        }
+        else if (disableCount >= 2)
+        {
+            // 완전 파괴
+            setBlockType(BlockType.None);
+        }
+    }
+#endregion
 }

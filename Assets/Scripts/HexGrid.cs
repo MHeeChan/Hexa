@@ -7,10 +7,11 @@ public class HexGrid : MonoBehaviour
 {
     public static HexGrid Instance { get; private set; }
     public GameObject cellPrefab;
-    //public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
-    public int[] colCellCounts = {5, 6, 5, 6, 5, 6, 5};
+    public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
+    //public int[] colCellCounts = {5, 6, 5, 6, 5, 6, 5};
     public float xStep = 108f;
     public float yStep = 140f;
+	
     public List<Sprite> blockSprites;
     
     public static int movingBlockCount = 0;
@@ -49,6 +50,8 @@ public class HexGrid : MonoBehaviour
     void Start()
     {
         SpawnGrid();
+        setDisable();
+		GameManager.Instance.ReStart();
     }
 
     public void plusCount()
@@ -66,9 +69,9 @@ public class HexGrid : MonoBehaviour
         hexGrid.Clear();
         float totalWidth = (colCellCounts.Length - 1) * xStep;
         float startX = -totalWidth / 2f;
-
+		
         for (int col = 0; col < colCellCounts.Length; col++)
-        {
+        {	
             GameObject colParent = new GameObject($"Col_{col}");
             colParent.transform.SetParent(this.transform, false);
             List<HexCell> columnList = new List<HexCell>();
@@ -77,7 +80,6 @@ public class HexGrid : MonoBehaviour
             float totalHeight = (rowCount - 1) * yStep;
             float baseY = -totalHeight / 2f;
 
-            // 홀수 열이면 Col_? 자체를 y+70만큼 올린다 (이동)
             float colYOffset = (col % 2 == 1) ? yStep / 2f : 0f;
             colParent.transform.localPosition = new Vector3(xStep * (col - (colCellCounts.Length - 1) / 2f), colYOffset, 0);
 
@@ -101,6 +103,23 @@ public class HexGrid : MonoBehaviour
         }
     }
 
+    public void setDisable(){
+        for(int i = 0; i < HexGrid.Instance.hexGrid.Count; i++){
+            if (i == 0 || i == 6)
+            {
+                HexGrid.Instance.hexGrid[i][0].setBlockType(BlockType.Disable);
+                HexGrid.Instance.hexGrid[i][4].setBlockType(BlockType.Disable);
+                HexGrid.Instance.hexGrid[i].RemoveAt(HexGrid.Instance.hexGrid[i].Count - 1);
+            }
+            if (i == 1 || i == 5)
+            {
+                HexGrid.Instance.hexGrid[i][0].setBlockType(BlockType.Disable);
+                HexGrid.Instance.hexGrid[i][5].setBlockType(BlockType.Disable);
+                HexGrid.Instance.hexGrid[i].RemoveAt(HexGrid.Instance.hexGrid[i].Count - 1);
+            }
+        }
+    }
+
     #region 블록 낙하 로직
     
     // 순차적으로. 대각선 낙하 연출할때 쓸만할지도
@@ -115,7 +134,9 @@ public class HexGrid : MonoBehaviour
             changed = false;
             for (int row = 0; row < colList.Count - 1; row++)
             {
-                if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None)
+                if (colList[row].blockType == BlockType.Disable)
+                    continue;
+                if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None && colList[row + 1].blockType != BlockType.Disable)
                 {
 
                     yield return StartCoroutine(colList[row + 1].MoveBlockTo(colList[row], moveDuration));
@@ -136,7 +157,7 @@ public class HexGrid : MonoBehaviour
     
     public void DropAllColumns()
     {
-        Debug.LogError("DropAllColumns");
+        //Debug.LogError("DropAllColumns");
         for (int col = 0; col < hexGrid.Count; col++)
         {
             StartCoroutine(DropBlocksInColumn(col));
@@ -157,7 +178,7 @@ public class HexGrid : MonoBehaviour
             for (int row = 0; row < colList.Count; row++)
             {
                 BlockType type = colList[row].blockType;
-                if (type == BlockType.None || type == BlockType.Spinner)
+                if (type == BlockType.None || type == BlockType.Spinner || type == BlockType.Disable)
                     continue;
 
                 // ---- 1. 세로(위아래) ----
@@ -272,8 +293,28 @@ public class HexGrid : MonoBehaviour
             }
         }
         
-        totalScore += deleteCount;
+        totalScore += (int)Mathf.Sqrt(deleteCount);
 
+        // 1. 인접한 Spinner(Disable) 블록을 중복 없이 모으기
+        HashSet<HexCell> adjacentSpinners = new HashSet<HexCell>();
+        foreach (var c in toRemove)
+        {
+            foreach (var neighbor in GetNeighbors(c))
+            {
+                if (neighbor.blockType == BlockType.Spinner)
+                {
+                    adjacentSpinners.Add(neighbor);
+                }
+            }
+        }
+
+        // 2. 중복 없이 한 번씩만 HitDisable() 호출
+        foreach (var spinner in adjacentSpinners)
+        {
+            spinner.HitSpinner();
+        }
+
+        // 3. 블록 제거
         foreach (var c in toRemove)
         {
             c.setBlockType(BlockType.None);
@@ -326,4 +367,25 @@ public class HexGrid : MonoBehaviour
 
     
     #endregion
+
+    // 헥사 셀의 인접 셀을 반환하는 함수 추가
+    public List<HexCell> GetNeighbors(HexCell cell)
+    {
+        List<HexCell> neighbors = new List<HexCell>();
+        int col = cell.col;
+        int row = cell.row;
+        int[][] evenOffsets = new int[][] { new int[]{-1,0}, new int[]{-1,1}, new int[]{0,1}, new int[]{1,0}, new int[]{0,-1}, new int[]{-1,-1} };
+        int[][] oddOffsets  = new int[][] { new int[]{-1,0}, new int[]{1,1}, new int[]{1,0}, new int[]{1,-1}, new int[]{0,-1}, new int[]{-1,-1} };
+        int[][] offsets = (col % 2 == 0) ? evenOffsets : oddOffsets;
+        for (int i = 0; i < 6; i++)
+        {
+            int nCol = col + offsets[i][0];
+            int nRow = row + offsets[i][1];
+            if (nCol >= 0 && nCol < hexGrid.Count && nRow >= 0 && nRow < hexGrid[nCol].Count)
+            {
+                neighbors.Add(hexGrid[nCol][nRow]);
+            }
+        }
+        return neighbors;
+    }
 }

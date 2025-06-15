@@ -19,6 +19,8 @@ public class HexGrid : MonoBehaviour
     public static int totalCount = 0;
     
     public static int totalScore = 0;
+
+    public static int totalMission = 0;
     
     public bool canSwap = false;
 

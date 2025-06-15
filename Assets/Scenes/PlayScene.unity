@@ -1189,6 +1189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3cb52b10542d274493bb9a94fd362e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  missionText: {fileID: 1558386154}
   moveText: {fileID: 846209612}
   scoreText: {fileID: 1437978730}
 --- !u!4 &1022219749
@@ -1422,7 +1423,7 @@ GameObject:
   - component: {fileID: 1558386155}
   - component: {fileID: 1558386154}
   m_Layer: 5
-  m_Name: Count
+  m_Name: MissionCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

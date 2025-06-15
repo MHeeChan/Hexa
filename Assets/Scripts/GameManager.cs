@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     
     public static int moveCount = 20;
+    public static int missionCount = 10;
+    [SerializeField] TextMeshProUGUI missionText;
     [SerializeField] TextMeshProUGUI moveText;
     [SerializeField] TextMeshProUGUI scoreText;
     private void Awake()
@@ -27,6 +29,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("testStart");
         UpdateCount();
         UpdateScore();
+        UpdateMission();
 
         int idxI = 0;
         foreach (var i in HexGrid.Instance.hexGrid )
@@ -46,6 +49,11 @@ public class GameManager : MonoBehaviour
             idxI++;
         }
         // 추후 랜덤이 아니라 스테이지 초기로 수정 필요
+    }
+
+    public void UpdateMission()
+    {
+        missionText.text = $"x {missionCount - HexGrid.totalMission}";
     }
 
     public void UpdateScore()

@@ -33,6 +33,7 @@ public class PausePopup : MonoBehaviour
     {
         HexGrid.totalCount = 0;
         HexGrid.totalScore = 0;
+        HexGrid.totalMission = 0;
         Time.timeScale = 1;
         AudioListener.pause = false;
         PauseButton.isPaused = false;

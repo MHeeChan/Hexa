@@ -48,6 +48,7 @@ public class HexCell : MonoBehaviour
         {
             blockImage.enabled = true; // 다시 켜기
             blockImage.sprite = HexGrid.Instance.GetBlockImage(_blockType);
+            disableCount = 0;
         }
     }
     
@@ -255,7 +256,7 @@ public class HexCell : MonoBehaviour
     public void HitSpinner()
     {
         if (blockType != BlockType.Spinner) return;
-        Debug.LogError("HitSpinner");
+        //Debug.LogError("HitSpinner");
         disableCount++;
         if (disableCount == 1)
         {
@@ -265,6 +266,8 @@ public class HexCell : MonoBehaviour
         else if (disableCount >= 2)
         {
             // 완전 파괴
+            HexGrid.totalMission++;
+            GameManager.Instance.UpdateMission();
             setBlockType(BlockType.None);
         }
     }

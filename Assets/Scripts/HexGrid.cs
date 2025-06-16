@@ -126,44 +126,113 @@ public class HexGrid : MonoBehaviour
     
     // 순차적으로. 대각선 낙하 연출할때 쓸만할지도
     // 추후 한번에 옮겨지도록 처리 필요
-    private IEnumerator DropBlocksInColumn(int col)
-    {
-        var colList = hexGrid[col];
-        float moveDuration = 0.2f;
-        bool changed;
-        do
-        {
-            changed = false;
-            for (int row = 0; row < colList.Count - 1; row++)
-            {
-                if (colList[row].blockType == BlockType.Disable)
-                    continue;
-                if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None && colList[row + 1].blockType != BlockType.Disable)
-                {
+    // private IEnumerator DropBlocksInColumn(int col)
+    // {
+    //     var colList = hexGrid[col];
+    //     float moveDuration = 0.2f;
+    //     bool changed;
+    //     do
+    //     {
+    //         changed = false;
+    //         for (int row = 0; row < colList.Count - 1; row++)
+    //         {
+    //             if (colList[row].blockType == BlockType.Disable)
+    //                 continue;
+    //             if (colList[row].blockType == BlockType.None && colList[row + 1].blockType != BlockType.None && colList[row + 1].blockType != BlockType.Disable)
+    //             {
 
-                    yield return StartCoroutine(colList[row + 1].MoveBlockTo(colList[row], moveDuration));
-                    colList[row].setBlockType(colList[row + 1].blockType);
-                    colList[row + 1].setBlockType(BlockType.None);
+    //                 yield return StartCoroutine(colList[row + 1].MoveBlockTo(colList[row], moveDuration));
+    //                 colList[row].setBlockType(colList[row + 1].blockType);
+    //                 colList[row + 1].setBlockType(BlockType.None);
 
-                    changed = true;
-                }
-            }
-            if (colList[colList.Count - 1].blockType == BlockType.None)
-            {
-                colList[colList.Count - 1].setBlockRandomType();
-                changed = true;
-            }
-        } while (changed);
-    }
+    //                 changed = true;
+    //             }
+    //         }
+    //         if (colList[colList.Count - 1].blockType == BlockType.None)
+    //         {
+    //             colList[colList.Count - 1].setBlockRandomType();
+    //             changed = true;
+    //         }
+    //     } while (changed);
+    // }
     
     
     public void DropAllColumns()
     {
-        //Debug.LogError("DropAllColumns");
+        StartCoroutine(DropBlocksDiagonal());
+    }
+
+    private IEnumerator DropBlocksDiagonal()
+    {
+        float moveDuration = 0.1f;
+        int maxRow = 0;
         for (int col = 0; col < hexGrid.Count; col++)
+            if (hexGrid[col].Count > maxRow) maxRow = hexGrid[col].Count;
+        bool changed;
+        do
         {
-            StartCoroutine(DropBlocksInColumn(col));
-        }
+            changed = false;
+            for (int row = 0; row < maxRow; row++)
+            {
+                for (int col = 0; col < hexGrid.Count; col++)
+                {
+                    var colList = hexGrid[col];
+                    if (row >= colList.Count) continue;
+                    var cell = colList[row];
+                    if (cell.blockType != BlockType.None || cell.blockType == BlockType.Disable) continue;
+
+                    // 1. 수직 위
+                    int upRow = row + 1;
+                    if (upRow < colList.Count &&
+                        colList[upRow].blockType != BlockType.None &&
+                        colList[upRow].blockType != BlockType.Disable)
+                    {
+                        yield return StartCoroutine(colList[upRow].MoveBlockTo(cell, moveDuration));
+                        cell.setBlockType(colList[upRow].blockType);
+                        colList[upRow].setBlockType(BlockType.None);
+                        changed = true;
+                        continue;
+                    }
+
+                    // 2. 왼쪽 위
+                    int leftUpCol = col - 1;
+                    int leftUpRow = (col % 2 == 0) ? row + 1 : row;
+                    if (leftUpCol >= 0 && leftUpCol < hexGrid.Count &&
+                        leftUpRow >= 0 && leftUpRow < hexGrid[leftUpCol].Count &&
+                        hexGrid[leftUpCol][leftUpRow].blockType != BlockType.None &&
+                        hexGrid[leftUpCol][leftUpRow].blockType != BlockType.Disable)
+                    {
+                        yield return StartCoroutine(hexGrid[leftUpCol][leftUpRow].MoveBlockTo(cell, moveDuration));
+                        cell.setBlockType(hexGrid[leftUpCol][leftUpRow].blockType);
+                        hexGrid[leftUpCol][leftUpRow].setBlockType(BlockType.None);
+                        changed = true;
+                        continue;
+                    }
+
+                    // 3. 오른쪽 위
+                    int rightUpCol = col + 1;
+                    int rightUpRow = (col % 2 == 0) ? row + 1 : row;
+                    if (rightUpCol >= 0 && rightUpCol < hexGrid.Count &&
+                        rightUpRow >= 0 && rightUpRow < hexGrid[rightUpCol].Count &&
+                        hexGrid[rightUpCol][rightUpRow].blockType != BlockType.None &&
+                        hexGrid[rightUpCol][rightUpRow].blockType != BlockType.Disable)
+                    {
+                        yield return StartCoroutine(hexGrid[rightUpCol][rightUpRow].MoveBlockTo(cell, moveDuration));
+                        cell.setBlockType(hexGrid[rightUpCol][rightUpRow].blockType);
+                        hexGrid[rightUpCol][rightUpRow].setBlockType(BlockType.None);
+                        changed = true;
+                        continue;
+                    }
+
+                    // 4. 최상단이면 새 블록 생성
+                    if (row == colList.Count - 1)
+                    {
+                        cell.setBlockRandomType();
+                        changed = true;
+                    }
+                }
+            }
+        } while (changed);
     }
     
     #endregion

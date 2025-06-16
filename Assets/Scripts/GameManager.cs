@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI missionText;
     [SerializeField] TextMeshProUGUI moveText;
     [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] GameObject ClearPopup;
     private void Awake()
     {
         if (Instance == null)
@@ -66,4 +67,7 @@ public class GameManager : MonoBehaviour
         moveText.text = $"{moveCount - HexGrid.totalCount}";
     }
 
+    public void StageClear(){
+        ClearPopup.SetActive(true);
+    }
 }

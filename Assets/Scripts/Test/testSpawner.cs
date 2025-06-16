@@ -23,6 +23,11 @@ public class testSpawner : MonoBehaviour
         {
             HexGrid.Instance.hexGrid[3][0].setBlockType(BlockType.Spinner);
         }
+
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            GameManager.Instance.StageClear();
+        }
     }
 
     void testStart()

@@ -6,14 +6,20 @@ public class ClearPopup : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private GameObject BackGround;
+    [SerializeField] private AudioSource bgm;
 
     // Update is called once per frame
     void OnEnable()
     {
         if (!BackGround.activeSelf)
         {
-            BackGround.SetActive(true);
+            BackGround.SetActive(true);   
         }
+        Time.timeScale = 0;
+        bgm.ignoreListenerPause = true;
+        PauseButton.Instance.bgmPause();
+        bgm.Play();
+        PauseButton.isPaused = true;
     }
 
     void OnDisable()
@@ -30,7 +36,7 @@ public class ClearPopup : MonoBehaviour
         HexGrid.totalScore = 0;
         HexGrid.totalMission = 0;
         Time.timeScale = 1;
-        AudioListener.pause = false;
+        PauseButton.Instance.bgmPlay();
         PauseButton.isPaused = false;
         this.gameObject.SetActive(false);
 

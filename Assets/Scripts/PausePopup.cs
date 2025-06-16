@@ -35,7 +35,7 @@ public class PausePopup : MonoBehaviour
         HexGrid.totalScore = 0;
         HexGrid.totalMission = 0;
         Time.timeScale = 1;
-        AudioListener.pause = false;
+        PauseButton.Instance.bgmPlay();
         PauseButton.isPaused = false;
         this.gameObject.SetActive(false);
 
@@ -46,7 +46,7 @@ public class PausePopup : MonoBehaviour
     {
         Debug.Log("Resume button clicked");
         Time.timeScale = 1;
-        AudioListener.pause = false;
+        PauseButton.Instance.bgmPlay();
         PauseButton.isPaused = false;
         this.gameObject.SetActive(false);
     }

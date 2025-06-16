@@ -28,6 +28,11 @@ public class testSpawner : MonoBehaviour
         {
             GameManager.Instance.StageClear();
         }
+
+        if (Input.GetKeyUp(KeyCode.F))
+        {
+            GameManager.Instance.StageFail();
+        }
     }
 
     void testStart()

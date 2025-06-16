@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Collections;
 public enum BlockType
 {
-    None,
-    Blue,
-    Yellow,
-    Red,
-    Green,
-    Purple,
-    Spinner, // 장애물
-    Disable
+    None = 0,
+    Blue = 1,
+    Yellow = 2,
+    Red = 3,
+    Green = 4,
+    Orange = 5,
+    Purple = 6,
+    Spinner = 7,
+    Disable = 8
 }
 
 public class HexCell : MonoBehaviour

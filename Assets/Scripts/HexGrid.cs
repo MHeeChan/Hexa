@@ -7,8 +7,8 @@ public class HexGrid : MonoBehaviour
 {
     public static HexGrid Instance { get; private set; }
     public GameObject cellPrefab;
-    public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
-    //public int[] colCellCounts = {5, 6, 5, 6, 5, 6, 5};
+    //public int[] colCellCounts = {3, 4, 5, 6, 5, 4, 3};
+    public int[] colCellCounts = {5, 6, 5, 6, 5, 6, 5};
     public float xStep = 108f;
     public float yStep = 140f;
 	
@@ -36,8 +36,9 @@ public class HexGrid : MonoBehaviour
         blockSpriteDict.Add(BlockType.Yellow, blockSprites[1]);
         blockSpriteDict.Add(BlockType.Red, blockSprites[2]);
         blockSpriteDict.Add(BlockType.Green, blockSprites[3]);
-        blockSpriteDict.Add(BlockType.Purple, blockSprites[4]);
-        blockSpriteDict.Add(BlockType.Spinner, blockSprites[5]);
+        blockSpriteDict.Add(BlockType.Orange, blockSprites[4]);
+        blockSpriteDict.Add(BlockType.Purple, blockSprites[5]);
+        blockSpriteDict.Add(BlockType.Spinner, blockSprites[6]);
         
         if (Instance == null)
         {
@@ -52,6 +53,7 @@ public class HexGrid : MonoBehaviour
     void Start()
     {
         SpawnGrid();
+        GameManager.Instance.LoadStageFromJson("stage1");
         setDisable();
 		GameManager.Instance.ReStart();
     }

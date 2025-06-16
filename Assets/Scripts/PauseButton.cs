@@ -35,4 +35,11 @@ public class PauseButton : ButtonManager
     public void bgmPlay(){
         bgm.Play();
     }
+
+    public void bgmRestart()
+    {
+        bgm.Stop();           // 현재 재생 중인 BGM 정지
+        bgm.time = 0f;        // 재생 위치를 처음으로 되돌림
+        bgm.Play();           // 처음부터 다시 재생
+    }
 }

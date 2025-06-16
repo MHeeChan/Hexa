@@ -36,7 +36,7 @@ public class ClearPopup : MonoBehaviour
         HexGrid.totalScore = 0;
         HexGrid.totalMission = 0;
         Time.timeScale = 1;
-        PauseButton.Instance.bgmPlay();
+        PauseButton.Instance.bgmRestart();
         PauseButton.isPaused = false;
         this.gameObject.SetActive(false);
 

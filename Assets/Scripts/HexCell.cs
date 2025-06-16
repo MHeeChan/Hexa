@@ -89,7 +89,7 @@ public class HexCell : MonoBehaviour
             // 인접한 셀만 스왑 허용!
             if (selectedCell.IsAdjacent(this))
             {
-                HexGrid.Instance.plusCount();
+                
             	SwapWithAnim(selectedCell, this);
                 //SwapBlock(selectedCell, this);
                 //HexGrid.Instance.DropAllColumnsWithAnimation();
@@ -131,12 +131,31 @@ public class HexCell : MonoBehaviour
             selectEffect.SetActive(isSelected);
     }
     
-    public bool IsAdjacent(HexCell other)
+    // public bool IsAdjacent(HexCell other)
+    // {
+    //     Vector2 myPos = ((RectTransform)this.transform).position;
+    //     Vector2 otherPos = ((RectTransform)other.transform).position;
+    //     float dist = Vector2.Distance(myPos, otherPos);
+    //     Debug.LogError(dist);
+    //     return dist <= 0.5f; 
+    // }
+    public bool IsAdjacent(HexCell cell)
     {
-        Vector2 myPos = ((RectTransform)this.transform).position;
-        Vector2 otherPos = ((RectTransform)other.transform).position;
-        float dist = Vector2.Distance(myPos, otherPos);
-        return dist <= 0.5f; 
+        int col = this.col;
+        int row = this.row;
+        int[][] evenOffsets = new int[][] { new int[]{-1,0}, new int[]{-1,1}, new int[]{0,1}, new int[]{0,-1}, new int[]{1,0}, new int[]{1,1} };
+        int[][] oddOffsets  = new int[][] { new int[]{-1,0}, new int[]{-1,-1}, new int[]{0,1}, new int[]{0,-1}, new int[]{1,0}, new int[]{1,-1} };
+        int[][] offsets = (col % 2 == 0) ? evenOffsets : oddOffsets;
+        for (int i = 0; i < 6; i++)
+        {
+            int nCol = col + offsets[i][0];
+            int nRow = row + offsets[i][1];
+            if (nCol == cell.col && nRow == cell.row)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void Update()
@@ -222,6 +241,7 @@ public class HexCell : MonoBehaviour
         }
         else
         {
+            HexGrid.Instance.plusCount();
             GameManager.Instance.UpdateCount();
             GameManager.Instance.UpdateScore();
             GameManager.Instance.UpdateMission();
@@ -257,6 +277,7 @@ public class HexCell : MonoBehaviour
         {
             // 완전 파괴
             HexGrid.totalMission++;
+            PlayParticleEffect();
             setBlockType(BlockType.None);
         }
     }

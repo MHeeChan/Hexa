@@ -5197,5 +5197,4 @@ MonoBehaviour:
   blockParticle: {fileID: 3067386203275138758}
   spinnerImage: {fileID: 21300000, guid: 4bdc81d13dbb2364aa103fa5af6ddbf0, type: 3}
   selectEffect: {fileID: 6189904937040075014}
-  disableCount: 0
   tested: 0

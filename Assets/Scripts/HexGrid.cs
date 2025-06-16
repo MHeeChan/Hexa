@@ -39,6 +39,7 @@ public class HexGrid : MonoBehaviour
         blockSpriteDict.Add(BlockType.Orange, blockSprites[4]);
         blockSpriteDict.Add(BlockType.Purple, blockSprites[5]);
         blockSpriteDict.Add(BlockType.Spinner, blockSprites[6]);
+        blockSpriteDict.Add(BlockType.SpinnerHitted, blockSprites[7]);
         
         if (Instance == null)
         {
@@ -111,14 +112,14 @@ public class HexGrid : MonoBehaviour
         for(int i = 0; i < HexGrid.Instance.hexGrid.Count; i++){
             if (i == 0 || i == 6)
             {
-                HexGrid.Instance.hexGrid[i][0].setBlockType(BlockType.Disable);
-                HexGrid.Instance.hexGrid[i][4].setBlockType(BlockType.Disable);
+                //HexGrid.Instance.hexGrid[i][0].setBlockType(BlockType.Disable);
+                //HexGrid.Instance.hexGrid[i][4].setBlockType(BlockType.Disable);
                 HexGrid.Instance.hexGrid[i].RemoveAt(HexGrid.Instance.hexGrid[i].Count - 1);
             }
             if (i == 1 || i == 5)
             {
-                HexGrid.Instance.hexGrid[i][0].setBlockType(BlockType.Disable);
-                HexGrid.Instance.hexGrid[i][5].setBlockType(BlockType.Disable);
+                //HexGrid.Instance.hexGrid[i][0].setBlockType(BlockType.Disable);
+                //HexGrid.Instance.hexGrid[i][5].setBlockType(BlockType.Disable);
                 HexGrid.Instance.hexGrid[i].RemoveAt(HexGrid.Instance.hexGrid[i].Count - 1);
             }
         }
@@ -251,7 +252,7 @@ public class HexGrid : MonoBehaviour
             for (int row = 0; row < colList.Count; row++)
             {
                 BlockType type = colList[row].blockType;
-                if (type == BlockType.None || type == BlockType.Spinner || type == BlockType.Disable)
+                if (type == BlockType.None || type == BlockType.Spinner || type == BlockType.SpinnerHitted || type == BlockType.Disable)
                     continue;
 
                 // ---- 1. 세로(위아래) ----
@@ -374,7 +375,7 @@ public class HexGrid : MonoBehaviour
         {
             foreach (var neighbor in GetNeighbors(c))
             {
-                if (neighbor.blockType == BlockType.Spinner)
+                if (neighbor.blockType == BlockType.Spinner || neighbor.blockType == BlockType.SpinnerHitted)
                 {
                     adjacentSpinners.Add(neighbor);
                 }
@@ -448,8 +449,8 @@ public class HexGrid : MonoBehaviour
         List<HexCell> neighbors = new List<HexCell>();
         int col = cell.col;
         int row = cell.row;
-        int[][] evenOffsets = new int[][] { new int[]{-1,0}, new int[]{-1,1}, new int[]{0,1}, new int[]{1,0}, new int[]{0,-1}, new int[]{-1,-1} };
-        int[][] oddOffsets  = new int[][] { new int[]{-1,0}, new int[]{1,1}, new int[]{1,0}, new int[]{1,-1}, new int[]{0,-1}, new int[]{-1,-1} };
+        int[][] evenOffsets = new int[][] { new int[]{-1,0}, new int[]{-1,1}, new int[]{0,1}, new int[]{0,-1}, new int[]{1,0}, new int[]{1, 1} };
+        int[][] oddOffsets  = new int[][] { new int[]{-1,0}, new int[]{-1,-1}, new int[]{0,1}, new int[]{0,-1}, new int[]{1,0}, new int[]{1,-1},  };
         int[][] offsets = (col % 2 == 0) ? evenOffsets : oddOffsets;
         for (int i = 0; i < 6; i++)
         {

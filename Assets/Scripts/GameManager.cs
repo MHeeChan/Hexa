@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     
     private StageData currentStage;
     public static int moveCount = 20;
-    public static int missionCount = 10;
+    public static int missionCount = 8;
     [SerializeField] TextMeshProUGUI missionText;
     [SerializeField] TextMeshProUGUI moveText;
     [SerializeField] TextMeshProUGUI scoreText;

@@ -12,7 +12,8 @@ public enum BlockType
     Orange = 5,
     Purple = 6,
     Spinner = 7,
-    Disable = 8
+    SpinnerHitted = 8,
+    Disable = 9
 }
 
 public class HexCell : MonoBehaviour
@@ -26,8 +27,7 @@ public class HexCell : MonoBehaviour
     [SerializeField] private GameObject selectEffect;
     
     public static HexCell selectedCell = null;
-    public int disableCount = 0;
-    
+
     public bool tested = false;
     public void init(int c, int r, BlockType _blockType)
     {
@@ -50,7 +50,6 @@ public class HexCell : MonoBehaviour
         {
             blockImage.enabled = true; // 다시 켜기
             blockImage.sprite = HexGrid.Instance.GetBlockImage(_blockType);
-            disableCount = 0;
         }
     }
     
@@ -137,8 +136,7 @@ public class HexCell : MonoBehaviour
         Vector2 myPos = ((RectTransform)this.transform).position;
         Vector2 otherPos = ((RectTransform)other.transform).position;
         float dist = Vector2.Distance(myPos, otherPos);
-        
-        return dist <= 140f; 
+        return dist <= 0.5f; 
     }
 
     void Update()
@@ -247,15 +245,15 @@ public class HexCell : MonoBehaviour
 #region 장애물 블록 구현
     public void HitSpinner()
     {
-        if (blockType != BlockType.Spinner) return;
+        if (blockType != BlockType.Spinner && blockType != BlockType.SpinnerHitted) return;
         //Debug.LogError("HitSpinner");
-        disableCount++;
-        if (disableCount == 1)
+
+        if (blockType == BlockType.Spinner)
         {
             // 포장 벗겨짐
-            setImage(spinnerImage);
+            setBlockType(BlockType.SpinnerHitted);
         }
-        else if (disableCount >= 2)
+        else if (blockType == BlockType.SpinnerHitted)
         {
             // 완전 파괴
             HexGrid.totalMission++;

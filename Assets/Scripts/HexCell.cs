@@ -225,6 +225,14 @@ public class HexCell : MonoBehaviour
         {
             GameManager.Instance.UpdateCount();
             GameManager.Instance.UpdateScore();
+            GameManager.Instance.UpdateMission();
+
+            if(GameManager.missionCount <= HexGrid.totalMission){
+                GameManager.Instance.StageClear();   
+            }
+            else if(GameManager.moveCount - HexGrid.totalCount <= 0){
+                GameManager.Instance.StageFail();   
+            }
         }
     
         
@@ -250,7 +258,6 @@ public class HexCell : MonoBehaviour
         {
             // 완전 파괴
             HexGrid.totalMission++;
-            GameManager.Instance.UpdateMission();
             setBlockType(BlockType.None);
         }
     }

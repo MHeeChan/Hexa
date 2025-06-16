@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI scoreText;
     [SerializeField] GameObject ClearPopup;
     [SerializeField] GameObject FailPopup;
+    
     private void Awake()
     {
         if (Instance == null)

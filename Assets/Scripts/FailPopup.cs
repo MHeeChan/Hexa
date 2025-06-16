@@ -15,7 +15,7 @@ public class FailPopup : MonoBehaviour
         {
             BackGround.SetActive(true);   
         }
-        Time.timeScale = 0;
+        //Time.timeScale = 0;
         bgm.ignoreListenerPause = true;
         PauseButton.Instance.bgmPause();
         bgm.Play();

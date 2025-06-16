@@ -26,12 +26,14 @@ public class testSpawner : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.L))
         {
-            GameManager.Instance.StageClear();
+            Debug.Log("clear test");
+            HexGrid.totalMission = 9;
         }
 
         if (Input.GetKeyUp(KeyCode.F))
         {
-            GameManager.Instance.StageFail();
+            Debug.Log("fail test");
+            HexGrid.totalCount = 19;
         }
     }
 

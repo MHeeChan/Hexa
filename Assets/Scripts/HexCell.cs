@@ -20,6 +20,7 @@ public class HexCell : MonoBehaviour
     public int row;
     public BlockType blockType;
     [SerializeField] Image blockImage;
+    [SerializeField] ParticleSystem blockParticle;
     [SerializeField] Sprite spinnerImage;
     [SerializeField] private GameObject selectEffect;
     
@@ -66,6 +67,11 @@ public class HexCell : MonoBehaviour
     public Image getImage()
     {
         return blockImage;
+    }
+
+    public void PlayParticleEffect()
+    {
+        blockParticle.Play();
     }
     
     public void OnClickCell()

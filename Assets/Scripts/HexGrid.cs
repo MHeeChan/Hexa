@@ -389,6 +389,7 @@ public class HexGrid : MonoBehaviour
         foreach (var c in toRemove)
         {
             c.setBlockType(BlockType.None);
+            c.PlayParticleEffect();
             found = true;
         }
         if (found) DropAllColumns();

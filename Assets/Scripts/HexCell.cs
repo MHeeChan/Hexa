@@ -141,31 +141,6 @@ public class HexCell : MonoBehaviour
         }
     }
     
-    
-    // public IEnumerator MoveBlockTo(HexCell toCell, float duration = 0.25f)
-    // {
-    //     var image = blockImage.transform;
-    //     Vector3 startPos = image.position;
-    //     Vector3 endPos = toCell.blockImage.transform.position;
-    //     Debug.LogError(startPos + " ; " + endPos);
-    //     Sprite tempSprite = blockImage.sprite;
-    //     BlockType tempType = blockType;
-    //
-    //     float elapsed = 0;
-    //     while (elapsed < duration)
-    //     {
-    //         //image.position = Vector3.Lerp(startPos, endPos, elapsed / duration);
-    //         elapsed += Time.deltaTime;
-    //         yield return null;
-    //     }
-    //     image.position = endPos;
-    //
-    //     // 도착 후에만 교체
-    //     toCell.setBlockType(tempType);
-    //     toCell.setImage(tempSprite);
-    //     this.setBlockType(BlockType.None);
-    // }
-    
     public IEnumerator MoveBlockTo(HexCell toCell, float duration = 0.25f)
     {
         HexGrid.movingBlockCount++;
@@ -220,7 +195,10 @@ public class HexCell : MonoBehaviour
             yield return null;
         }
 
-      a.setBlockType(typeA);
+        Destroy(tempA);
+        Destroy(tempB);
+
+        a.setBlockType(typeA);
         b.setBlockType(typeB);
 
         tempARect.position = bStartPos;
@@ -243,8 +221,7 @@ public class HexCell : MonoBehaviour
             GameManager.Instance.UpdateScore();
         }
     
-        Destroy(tempA);
-        Destroy(tempB);
+        
     }
    
     public void SwapWithAnim(HexCell cellA, HexCell cellB)
